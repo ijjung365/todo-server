@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,6 +32,33 @@ public class TaskService {
         return entityToObject(saved);
     }
 
+    public List<Task> getAll(){
+        return this.taskRepository.findAll().stream()
+                .map(this::entityToObject)
+                .collect(Collectors.toList());
+    }
+
+    public List<Task> getByDueDate(String dueDate){
+        return taskRepository.findAllByDueDate(Date.valueOf(dueDate)).stream()
+                .map(this::entityToObject)
+                .collect(Collectors.toList());
+    }
+
+    public List<Task> getByStatus(TaskStatus status){
+        return taskRepository.findAllByStatus(status).stream()
+                .map(this::entityToObject)
+                .collect(Collectors.toList());
+    }
+
+    public Task getOne(Long id){
+        var entity= this.getById(id);
+        return entityToObject(entity);
+    }
+
+    private TaskEntity getById(Long id){
+        return this.taskRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("Task not found"));
+    }
 
     private Task entityToObject(TaskEntity e) {
         return Task.builder()
